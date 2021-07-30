@@ -1,22 +1,42 @@
 import React,{useState} from 'react';
 import Datatable from '../datatable';
 import json from '../data/planets.json';
-function getFifty(data)
-    {
-        return data.slice(0,51)
-    }
+
+
+    function pageData({ data, per = 50, page = 1 }) {
+        return data.slice(per * (page - 1), per * page);
+      }
 export default function App() {
-    const [planets,setPlanets] = useState(getFifty(json));
-    const [load,setLoad] = useState();
+    const [state,setState] = useState(
+        {
+            data:pageData({data : json}),
+            loading:false,
+            page:1
+        })
     
-    function loadMore()
-    {
-        console.dir("Load More")
-    }
+        function loadMore() {
+            if (state.loading) return;
+            setState((prev) => ({
+              ...prev,
+              loading: true,
+            }));
+            setState((prev) => (
+                {
+                    data: [
+                        ...prev.data,
+                        ...pageData({ data: json, page: prev.page + 1 }),
+                      ],
+                      loading: false,
+                      page: prev.page + 1,
+                }));
+        
+            
+            
+          }
     return (
     <Datatable
         loadMore={loadMore}
-        items={planets}
+        items={state.data}
         renderHead={()=>
         <tr>
             <th>Planet Name</th>
